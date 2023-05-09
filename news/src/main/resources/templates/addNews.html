@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+<!--Page with the form for adding news-->
+  <title>Add news</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css">
+
+<!--Header with a link to the main pages. added to each page.-->
+  <header th:insert="~{tmp/header :: header}"></header>
+</head>
+
+<!--Page body.-->
+<body>
+<div class="container mt-5">
+  <h1 th:text="${title}"></h1>
+</div>
+<p></p>
+
+<!--Form for adding new news.-->
+<form th:action="@{/addNews}" method="post" enctype="multipart/form-data"><br />
+
+<!--Fields to fill before adding news. Fields marked "required" are required fields.-->
+  <label for="title" class="form-label">Title news</label>
+  <input class="form-control" name="title" type="text" id="title" required="required"><br />
+
+  <label for="date" class="form-label">News creation date</label>
+  <input class="form-control" name="date" type="date" id="date"
+         value="2023-05-11" min="2022-12-01" max="2025-01-01"
+         required="required"><br />
+
+  <label for="text" class="form-label">News text</label>
+  <input class="form-control" name="text" type="text" id="text" required="required"><br />
+
+  <label for="file" class="form-label">Upload the image file for the news</label>
+  <input class="form-control" name="file" type="file" id="file" accept="image/*"><br />
+  <p></p>
+
+<!--Button for adding news.-->
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addDialog">Add</button>
+
+<!--Modal window to confirm adding news.-->
+  <div th:insert="~{tmp/addDialog :: addDialog}"></div>
+</form>
+
+<!--Modal window script-->
+<div th:insert="~{tmp/modalScript :: modalScript}"></div>
+
+</body>
+
+</html>

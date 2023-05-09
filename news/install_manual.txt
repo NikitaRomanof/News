@@ -1,0 +1,14 @@
+Attention! 
+Before running the application, you need to create and run database server with the following parameters:
+1. Database - PostgreSQL
+2. Port number to connect to the database server - 5432
+3. Username - postgres
+4. Password - zxc
+5. Create a table in the database. The creation of the table is described in the script - init.sql
+
+After completing the above steps, 
+you need to run the following command from the root folder of the application: ./mvnw clean package
+
+Then go to the "target" folder and run the command: java -jar news-0.0.1-SNAPSHOT.jar
+
+The application will launch at: http://localhost:8080

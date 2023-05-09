@@ -1,0 +1,198 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<!--Page to display all news-->
+  <title>Newsline</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css">
+
+<!--Header with a link to the main pages. added to each page.-->
+  <header th:insert="~{tmp/header :: header}"></header>
+</head>
+
+<!--Page body.-->
+<body>
+<div class="container mt-5">
+  <h1 th:text="${title}"></h1>
+</div>
+<p></p>
+
+<!--Style for the table-->
+<style>
+*{box-sizing: border-box;}
+table{border-collapse:collapse;}
+td,th{padding:5px 15px;text-align:left;}
+
+<!--style the columnSelector class-->
+columnSelector : hover {
+ border-right: 2px solid #0000f;
+}
+</style>
+
+<!--Form for selecting the number of displayed news on the page.-->
+<div class="my-3">
+  <form th:action="@{/}" id="searchForm">
+    <div class="row d-flex">
+      <div class="col-md-3 input-group mt-2">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="pageSize">Items per page:</label>
+        </div>
+        <select form="searchForm" name="size" th:value="${pageSize}" onchange="changePageSize()" class="size-select"
+                id="pageSize">
+          <option th:each="s : ${ {10, 20, 50} }" th:value="${s}" th:text="${s}" th:selected="${s == pageSize}"></option>
+        </select>
+        <button type="submit" class="btn btn-secondary">Change Items</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!--Table with displayed news-->
+<table class="table" id="tableId">
+  <thead>
+  </thead>
+  <tbody>
+  <tr th:each="nw : ${news}">
+    <td th:text="${nw.title}"></td>
+    <td th:text="${nw.date}"></td>
+    <td th:text="${nw.text}"></td>
+    <td><img th:src="${nw.encoderImg}" alt=""></td>
+  </tr>
+  </tbody>
+</table>
+
+<!--Display the current page number and select the page number.-->
+<nav aria-label="Pagination" th:if="${totalPages > 0}">
+  <ul class="pagination justify-content-center">
+    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+      <a th:replace="~{tmp/paging :: paging(1, '<<', 'First Page')}"></a>
+    </li>
+    <li class="page-item font-weight-bold" th:classappend="${currentPage == 1} ? 'disabled'">
+      <a th:replace="~{tmp/paging :: paging(${currentPage - 1}, 'Prev', 'Previous Page')}"></a>
+    </li>
+    <li class="page-item disabled" th:if="${currentPage - 2 > 1}">
+      <a class="page-link" href="#">...</a>
+    </li>
+    <li class="page-item" th:classappend="${page == currentPage} ? 'active'"
+        th:each="page : ${#numbers.sequence(currentPage > 2 ? currentPage - 2 : 1, currentPage + 2 < totalPages ? currentPage + 2 : totalPages)}">
+      <a th:replace="~{tmp/paging :: paging(${page}, ${page}, 'Page ' + ${page})}"></a>
+    </li>
+    <li class="page-item disabled" th:if="${currentPage + 2 < totalPages}">
+      <a class="page-link" href="#">...</a>
+    </li>
+    <li class="page-item font-weight-bold" th:classappend="${currentPage == totalPages} ? 'disabled'">
+      <a th:replace="~{tmp/paging :: paging(${currentPage + 1},'Next', 'Next Page')}"></a>
+    </li>
+    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+      <a th:replace="~{tmp/paging :: paging(${totalPages}, '>>', 'Last Page')}"></a>
+    </li>
+  </ul>
+</nav>
+
+<!--Functionality for changing the news template in real time and changing the number of entries per page-->
+<script>
+<!--select all tables and pass them to resizableGrid function-->
+var tables = document.getElementsByTagName('table');
+for (var i=0; i<tables.length;i++){
+ resizableGrid(tables[i]);
+}
+
+<!--create the resizableGrid which retrieves the very first row of the table and store all td elements to cols variable using row.children.-->
+function resizableGrid(table) {
+ var row = table.getElementsByTagName('tr')[0],
+ cols = row ? row.children : undefined;
+ if (!cols) return;
+
+ table.style.overflow = 'hidden';
+ var tableHeight = table.offsetHeight;
+
+<!--make a div for each column as column selector using createDiv function and pass this div to setListeners function for adding some mouse events listeners-->
+ for (var i=0;i<cols.length;i++){
+  var div = createDiv(tableHeight);
+  cols[i].appendChild(div);
+  cols[i].style.position = 'relative';
+  setListeners(div);
+ }
+
+<!--setListeners function adds mousedown event to provided div element-->
+ function setListeners(div){
+  var pageX,curCol,nxtCol,curColWidth,nxtColWidth;
+
+  div.addEventListener('mousedown', function (e) {
+   curCol = e.target.parentElement;
+   nxtCol = curCol.nextElementSibling;
+   pageX = e.pageX;
+
+   var padding = paddingDiff(curCol);
+
+   curColWidth = curCol.offsetWidth - padding;
+   if (nxtCol)
+    nxtColWidth = nxtCol.offsetWidth - padding;
+  });
+
+  div.addEventListener('mouseover', function (e) {
+   e.target.style.borderRight = '2px solid #0000ff';
+  })
+
+  div.addEventListener('mouseout', function (e) {
+   e.target.style.borderRight = '';
+  })
+
+  document.addEventListener('mousemove', function (e) {
+   if (curCol) {
+    var diffX = e.pageX - pageX;
+
+    if (nxtCol)
+     nxtCol.style.width = (nxtColWidth - (diffX))+'px';
+
+    curCol.style.width = (curColWidth + diffX)+'px';
+   }
+  });
+
+  document.addEventListener('mouseup', function (e) {
+   curCol = undefined;
+   nxtCol = undefined;
+   pageX = undefined;
+   nxtColWidth = undefined;
+   curColWidth = undefined
+  });
+ }
+
+<!--The createDiv function makes a div with absolute position which sits right side on the column. We’ll use this div as column resizer handle.-->
+ function createDiv(height){
+  var div = document.createElement('div');
+  div.style.top = 0;
+  div.style.right = 0;
+  div.style.width = '5px';
+  div.style.position = 'absolute';
+  div.style.cursor = 'col-resize';
+  div.style.userSelect = 'none';
+  div.style.height = height + 'px';
+  return div;
+ }
+
+ function paddingDiff(col){
+
+  if (getStyleVal(col,'box-sizing') == 'border-box'){
+   return 0;
+  }
+
+  var padLeft = getStyleVal(col,'padding-left');
+  var padRight = getStyleVal(col,'padding-right');
+  return (parseInt(padLeft) + parseInt(padRight));
+
+ }
+
+ function getStyleVal(elm,css){
+  return (window.getComputedStyle(elm, null).getPropertyValue(css))
+ }
+};
+
+<!--Function to change the number of news on the page-->
+function changePageSize() {
+      $("#searchForm").submit();
+    }
+</script>
+
+</body>
+</html>

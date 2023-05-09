@@ -1,0 +1,12 @@
+After launching the application, navigate to http://localhost:8080 in your browser, which will open the main page application.
+All news are displayed on the main page. By default, 10 news are displayed on one page.
+The "Items per page:" field allows you to set the amount of news displayed on the page. Select the desired value and press the "Change Items" button.
+
+There is a navigation menu at the top right of the page.
+
+The "add news" tab allows you to add new news.
+To add a new entry, fill in the following fields: Title news, News creation date, News text.
+Field "Upload the image file for the news" is optional. After filling in all the required fields, click the "Add" button and confirm your action.
+
+The "Delete news" tab allows you to delete the selected news.
+Click the "Delete" button to the right of the news, confirm your action. The selected item will be deleted.
